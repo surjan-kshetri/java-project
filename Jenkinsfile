@@ -10,9 +10,11 @@ node('linux') {
 		sh 'ant -f build.xml -v'   
 	}   
 	stage('Deploy') {    
-		junit 'https://s3.console.aws.amazon.com/s3/buckets/assignment10665/rectangle-2.jar'   
+		sh 'aws s3 cp /workspace/java-pipeline/dist/rectangle-$[BUILD_NUMBER].jar s3:elasticbeanstalk-us-east-1 assignment10665'   
 	}
 	stage('reports') {
-		junit 'sh "aws ec2 run-instances --image-id ami-467ca739 --count 1 --instance-type t2.micro --key-name SEIS665-03 demo --security-group-ids sg-0fc84e78 --region us-east-1"'
+		sh 'withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '7eb7d48c-9449-447c-861f-0cc4aee91900', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+            // some block
+            sh 'aws cloudformation describe-stack-resources --stack-name jenkins --region us-east-1''
 	}
 }
